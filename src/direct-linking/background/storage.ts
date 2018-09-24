@@ -140,7 +140,7 @@ export class AnnotationStorage extends FeatureStorage {
         browserStorageArea = browser.storage.local,
     }: {
         storageManager: StorageManager
-        browserStorageArea: Storage.StorageArea
+        browserStorageArea?: Storage.StorageArea
     }) {
         super(storageManager)
         this._browserStorageArea = browserStorageArea
@@ -203,13 +203,13 @@ export class AnnotationStorage extends FeatureStorage {
     async getAnnotationByPk(url: string) {
         return this.storageManager
             .collection(AnnotationStorage.ANNOTATIONS_COLL)
-            .findOneObject({ url })
+            .findObjects<Annotation>({ url })
     }
 
     async getAnnotationsByUrl(pageUrl: string) {
         return this.storageManager
             .collection(AnnotationStorage.ANNOTATIONS_COLL)
-            .findObjects({ pageUrl })
+            .findObjects<Annotation>({ pageUrl })
     }
 
     async insertDirectLink({
@@ -278,7 +278,7 @@ export class AnnotationStorage extends FeatureStorage {
     async getTagsByAnnotationUrl(url: string) {
         return this.storageManager
             .collection(AnnotationStorage.ANNOTATIONS_COLL)
-            .findObjects({ url })
+            .findObjects<Tag>({ url })
     }
 
     modifyTags = (shouldAdd: boolean) => async (name: string, url: string) => {
