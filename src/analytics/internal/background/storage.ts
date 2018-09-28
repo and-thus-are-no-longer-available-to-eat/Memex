@@ -5,7 +5,7 @@ export default class EventLogStorage extends FeatureStorage {
     constructor(storageManager) {
         super(storageManager)
 
-        this.storageManager.registerCollection('eventLog', {
+        this.storageManager.registry.registerCollection('eventLog', {
             version: new Date(2018, 6, 14),
             fields: {
                 time: { type: 'datetime' },
@@ -21,7 +21,7 @@ export default class EventLogStorage extends FeatureStorage {
     }
 
     async storeEvent({ time, details, type }) {
-        await this.storageManager.putObject('eventLog', {
+        await this.storageManager.collection('eventLog').createObject({
             time,
             type: EVENT_TYPES[type].id,
             details,
@@ -38,19 +38,16 @@ export default class EventLogStorage extends FeatureStorage {
         }
 
         for (const type of NOTIF_TYPE_EVENT_IDS[notifType]) {
-            const latest = await this.storageManager.findObject(
-                'eventLog',
-                { type },
-                opts,
-            )
+            const latest = await this.storageManager
+                .collection('eventLog')
+                .findOneObject({ type }, opts)
             if (latest) {
                 latestEvent = Math.max(latest['time'], latestEvent)
             }
 
-            const eventCountNotif = await this.storageManager.countAll(
-                'eventLog',
-                { type },
-            )
+            const eventCountNotif = await this.storageManager
+                .collection('eventLog')
+                .countAll({ type })
             eventLogCount += Number(eventCountNotif)
         }
 

@@ -1,7 +1,8 @@
+import StorageManager from 'storex'
 import { browser, Tabs, Storage } from 'webextension-polyfill-ts'
 
 import { createPageFromTab, Tag } from '../../search'
-import { FeatureStorage, ManageableStorage } from '../../search/storage'
+import { FeatureStorage } from '../../search/storage'
 import { STORAGE_KEYS as IDXING_PREF_KEYS } from '../../options/settings/constants'
 
 export const DIRECTLINK_TABLE = 'directLinks'
@@ -26,13 +27,13 @@ export default class DirectLinkingStorage extends FeatureStorage {
         storageManager,
         browserStorageArea = browser.storage.local,
     }: {
-        storageManager: ManageableStorage
+        storageManager: StorageManager
         browserStorageArea: Storage.StorageArea
     }) {
         super(storageManager)
         this._browserStorageArea = browserStorageArea
 
-        this.storageManager.registerCollection(DIRECTLINK_TABLE, [
+        this.storageManager.registry.registerCollection(DIRECTLINK_TABLE, [
             {
                 version: new Date(2018, 5, 31),
                 fields: {
@@ -91,7 +92,7 @@ export default class DirectLinkingStorage extends FeatureStorage {
         body,
         selector,
     }: Annotation) {
-        await this.storageManager.putObject(DIRECTLINK_TABLE, {
+        await this.storageManager.collection(DIRECTLINK_TABLE).createObject({
             pageTitle,
             pageUrl,
             body,
@@ -132,13 +133,13 @@ export class AnnotationStorage extends FeatureStorage {
         storageManager,
         browserStorageArea = browser.storage.local,
     }: {
-        storageManager: ManageableStorage
+        storageManager: StorageManager
         browserStorageArea: Storage.StorageArea
     }) {
         super(storageManager)
         this._browserStorageArea = browserStorageArea
 
-        this.storageManager.registerCollection(ANNOTATION_TABLE, {
+        this.storageManager.registry.registerCollection(ANNOTATION_TABLE, {
             version: new Date(2018, 7, 26),
             fields: {
                 pageTitle: { type: 'text' },
@@ -191,15 +192,15 @@ export class AnnotationStorage extends FeatureStorage {
     }
 
     async getAnnotationByPk(url: string) {
-        return this.storageManager.findObject(ANNOTATION_TABLE, {
-            url,
-        })
+        return this.storageManager
+            .collection(ANNOTATION_TABLE)
+            .findOneObject({ url })
     }
 
     async getAnnotationsByUrl(pageUrl: string) {
-        return this.storageManager.findAll(ANNOTATION_TABLE, {
-            pageUrl,
-        })
+        return this.storageManager
+            .collection(ANNOTATION_TABLE)
+            .findObjects({ pageUrl })
     }
 
     async insertDirectLink({
@@ -209,7 +210,7 @@ export class AnnotationStorage extends FeatureStorage {
         body,
         selector,
     }: Annotation) {
-        await this.storageManager.putObject(ANNOTATION_TABLE, {
+        await this.storageManager.collection(ANNOTATION_TABLE).createObject({
             pageTitle,
             pageUrl,
             body,
@@ -229,7 +230,7 @@ export class AnnotationStorage extends FeatureStorage {
         comment,
         selector,
     }: Annotation) {
-        return this.storageManager.putObject(ANNOTATION_TABLE, {
+        return this.storageManager.collection(ANNOTATION_TABLE).createObject({
             pageTitle,
             pageUrl,
             comment,
@@ -242,8 +243,7 @@ export class AnnotationStorage extends FeatureStorage {
     }
 
     async editAnnotation(url: string, comment: string) {
-        return this.storageManager.updateObject(
-            ANNOTATION_TABLE,
+        return this.storageManager.collection(ANNOTATION_TABLE).updateOneObject(
             { url },
             {
                 $set: {
@@ -255,25 +255,25 @@ export class AnnotationStorage extends FeatureStorage {
     }
 
     async deleteAnnotation(url: string) {
-        return this.storageManager.deleteObject(ANNOTATION_TABLE, {
-            url,
-        })
+        return this.storageManager
+            .collection(ANNOTATION_TABLE)
+            .deleteOneObject({ url })
     }
 
     async getTagsByAnnotationUrl(url: string) {
-        return this.storageManager.findAll(TAGS_TABLE, {
-            url,
-        })
+        return this.storageManager
+            .collection(ANNOTATION_TABLE)
+            .findObjects({ url })
     }
 
     modifyTags = (shouldAdd: boolean) => async (name: string, url: string) => {
         if (shouldAdd) {
-            this.storageManager.putObject(TAGS_TABLE, {
+            this.storageManager.collection(TAGS_TABLE).createObject({
                 name,
                 url,
             })
         } else {
-            this.storageManager.deleteObject(TAGS_TABLE, {
+            this.storageManager.collection(TAGS_TABLE).deleteOneObject({
                 name,
                 url,
             })
