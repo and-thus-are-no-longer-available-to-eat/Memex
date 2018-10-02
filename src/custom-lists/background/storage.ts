@@ -7,10 +7,8 @@ export default class CustomListStorage extends FeatureStorage {
 
     constructor({ storageManager }) {
         super(storageManager)
-        this.storageManager.registry.registerCollection(
-            CustomListStorage.CUSTOM_LISTS_COLL,
-            {
-                // different version for adding a new table.
+        this.storageManager.registry.registerCollections({
+            [CustomListStorage.CUSTOM_LISTS_COLL]: {
                 version: new Date(2018, 6, 12),
                 fields: {
                     id: { type: 'string', pk: true },
@@ -27,12 +25,7 @@ export default class CustomListStorage extends FeatureStorage {
                     { field: 'createdAt' },
                 ],
             },
-        )
-
-        this.storageManager.registry.registerCollection(
-            CustomListStorage.LIST_ENTRIES_COLL,
-            {
-                // different version for adding a new table.
+            [CustomListStorage.LIST_ENTRIES_COLL]: {
                 version: new Date(2018, 6, 12),
                 fields: {
                     listId: { type: 'string' },
@@ -46,7 +39,7 @@ export default class CustomListStorage extends FeatureStorage {
                     { field: 'pageUrl' },
                 ],
             },
-        )
+        })
     }
 
     /**
@@ -309,17 +302,17 @@ export default class CustomListStorage extends FeatureStorage {
     }) {
         const suggestions = await this.storageManager
             .collection(CustomListStorage.CUSTOM_LISTS_COLL)
-            .suggest(
+            .suggestObjects<string, number>(
                 {
                     name,
                 },
                 {
-                    suggestPks: true,
+                    includePks: true,
                     ignoreCase: ['name'],
                 },
             )
         const listIds = suggestions.map(({ pk }) => pk)
-        //
+
         const lists: PageList[] = suggestions.map(({ pk, suggestion }) => ({
             id: pk,
             name: suggestion,

@@ -1,28 +1,33 @@
 import { FeatureStorage } from '../../search/storage'
 
 export default class NotificationStorage extends FeatureStorage {
+    static NOTIFS_COLL = 'notifications'
+
     constructor(storageManager) {
         super(storageManager)
 
-        this.storageManager.registry.registerCollection('notifications', {
-            version: new Date(2018, 7, 4),
-            fields: {
-                id: { type: 'string' },
-                title: { type: 'string' },
-                message: { type: 'string' },
-                buttonText: { type: 'string' },
-                link: { type: 'string' },
-                sentTime: { type: 'datetime' },
-                deliveredTime: { type: 'datetime' },
-                readTime: { type: 'datetime' },
+        this.storageManager.registry.registerCollection(
+            NotificationStorage.NOTIFS_COLL,
+            {
+                version: new Date(2018, 7, 4),
+                fields: {
+                    id: { type: 'string' },
+                    title: { type: 'string' },
+                    message: { type: 'string' },
+                    buttonText: { type: 'string' },
+                    link: { type: 'string' },
+                    sentTime: { type: 'datetime' },
+                    deliveredTime: { type: 'datetime' },
+                    readTime: { type: 'datetime' },
+                },
+                indices: [{ field: 'id', pk: true }],
             },
-            indices: [{ field: 'id', pk: true }],
-        })
+        )
     }
 
     async storeNotification(notification) {
         await this.storageManager
-            .collection('notifications')
+            .collection(NotificationStorage.NOTIFS_COLL)
             .createObject(notification)
     }
 
@@ -32,7 +37,7 @@ export default class NotificationStorage extends FeatureStorage {
         }
 
         return this.storageManager
-            .collection('notifications')
+            .collection(NotificationStorage.NOTIFS_COLL)
             .findObjects({ readTime: { $exists: false } }, opt)
     }
 
@@ -44,7 +49,7 @@ export default class NotificationStorage extends FeatureStorage {
         }
 
         const results = await this.storageManager
-            .collection('notifications')
+            .collection(NotificationStorage.NOTIFS_COLL)
             .findObjects({ readTime: { $exists: true } }, opt)
 
         return {
@@ -54,25 +59,29 @@ export default class NotificationStorage extends FeatureStorage {
     }
 
     async fetchUnreadCount() {
-        return this.storageManager.collection('notifications').countAll({
-            readTime: { $exists: false },
-        })
+        return this.storageManager
+            .collection(NotificationStorage.NOTIFS_COLL)
+            .countObjects({
+                readTime: { $exists: false },
+            })
     }
 
     async readNotification(id) {
-        await this.storageManager.collection('notifications').updateOneObject(
-            { id },
-            {
-                $set: {
-                    readTime: Date.now(),
+        await this.storageManager
+            .collection(NotificationStorage.NOTIFS_COLL)
+            .updateOneObject(
+                { id },
+                {
+                    $set: {
+                        readTime: Date.now(),
+                    },
                 },
-            },
-        )
+            )
     }
 
     async fetchNotifById(id) {
         return this.storageManager
-            .collection('notifications')
+            .collection(NotificationStorage.NOTIFS_COLL)
             .findOneObject({ id })
     }
 }
