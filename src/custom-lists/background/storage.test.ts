@@ -1,14 +1,22 @@
+import StorageManager from 'storex'
+import { FakeStorageBackend } from 'storex/lib/backend/index.tests'
+
 import CustomListBackground from './'
-import Storage from '../../search/storage'
 import * as DATA from './storage.test.data'
-import { StorageManager } from '../../search/storage/manager'
 
 const indexedDB = require('fake-indexeddb')
 const iDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange')
 
 const runSuite = () => () => {
-    // New storage manager instance
-    const storageManager = new StorageManager()
+    const ids = {}
+    const storageManager = new StorageManager({
+        backend: new FakeStorageBackend({
+            idGenerator: collection => {
+                ids[collection] = ids[collection] || 0
+                return `${collection}-${(++ids[collection]).toString()}`
+            },
+        }),
+    })
     const fakeIndex = new CustomListBackground({ storageManager })
     async function insertTestData() {
         // Insert some test data for all tests to use
@@ -26,14 +34,7 @@ const runSuite = () => () => {
         indexedDB.deleteDatabase(dbName)
 
         // Passing fake IndexedDB to the storage manager
-        storageManager._finishInitialization(
-            new Storage({
-                indexedDB,
-                IDBKeyRange: iDBKeyRange,
-                dbName,
-                storageManager,
-            }),
-        )
+        storageManager.finishInitialization()
 
         await insertTestData()
     }
