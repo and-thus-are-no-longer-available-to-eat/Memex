@@ -2,13 +2,15 @@ import StorageManager from 'storex'
 import { DexieStorageBackend } from 'storex-backend-dexie'
 import stemmer from 'memex-stemmer'
 
+import schemaPatcher from './storage/dexie-schema'
 import Storage, { Props } from './storage'
 
 // Create main singleton to interact with DB in the ext
 const backend = new DexieStorageBackend({
     dbName: 'memex',
     stemmer,
-    idbImplementation: { factory: indexedDB, range: IDBKeyRange },
+    schemaPatcher,
+    idbImplementation: { factory: window.indexedDB, range: IDBKeyRange },
 }) as any
 
 const storageManager = new StorageManager({ backend })
