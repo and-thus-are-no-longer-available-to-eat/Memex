@@ -1,4 +1,4 @@
-import StorageManager from 'storex'
+import { StorageManager } from '../../search/types'
 import Dexie from 'dexie'
 import 'dexie-mongoify'
 

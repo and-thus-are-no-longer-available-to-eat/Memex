@@ -1,19 +1,6 @@
-import StorageManager from 'storex'
-import { DexieStorageBackend } from 'storex-backend-dexie'
-import stemmer from 'memex-stemmer'
-
-import schemaPatcher from './storage/dexie-schema'
 import Storage, { Props } from './storage'
+import storageManager from './storex'
 
-// Create main singleton to interact with DB in the ext
-const backend = new DexieStorageBackend({
-    dbName: 'memex',
-    stemmer,
-    schemaPatcher,
-    idbImplementation: { factory: window.indexedDB, range: IDBKeyRange },
-}) as any
-
-const storageManager = new StorageManager({ backend })
 let realIndex: Storage = null
 const index = new Proxy<Storage>({} as Storage, {
     get: (target, key) => {
