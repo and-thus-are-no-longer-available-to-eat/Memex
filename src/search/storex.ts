@@ -11,7 +11,10 @@ export const backend = new DexieStorageBackend({
     stemmer,
     schemaPatcher,
     dbName: 'memex',
-    idbImplementation: { factory: window.indexedDB, range: IDBKeyRange },
+    idbImplementation: {
+        factory: window.indexedDB,
+        range: window['IDBKeyRange'],
+    },
 })
 
 const instance = new Storex({ backend: backend as any })
