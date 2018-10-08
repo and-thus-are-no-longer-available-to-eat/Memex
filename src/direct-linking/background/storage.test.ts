@@ -1,5 +1,6 @@
 import StorageManager from 'storex'
-import { FakeStorageBackend } from 'storex/lib/backend/index.tests'
+import { DexieStorageBackend } from 'storex-backend-dexie'
+import stemmer from 'memex-stemmer'
 
 import normalize from '../../util/encode-url-for-id'
 import AnnotationBackground from './'
@@ -10,14 +11,15 @@ const indexedDB = require('fake-indexeddb')
 const iDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange')
 
 const runSuite = () => {
-    const ids = {}
     const storageManager = new StorageManager({
-        backend: new FakeStorageBackend({
-            idGenerator: collection => {
-                ids[collection] = ids[collection] || 0
-                return `${collection}-${(++ids[collection]).toString()}`
+        backend: new DexieStorageBackend({
+            stemmer,
+            dbName: 'test',
+            idbImplementation: {
+                factory: indexedDB,
+                range: iDBKeyRange,
             },
-        }),
+        }) as any,
     })
 
     const annotationStorage = new AnnotationBackground({ storageManager })

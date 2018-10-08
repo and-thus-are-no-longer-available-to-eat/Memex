@@ -1,5 +1,6 @@
 import StorageManager from 'storex'
-import { FakeStorageBackend } from 'storex/lib/backend/index.tests'
+import { DexieStorageBackend } from 'storex-backend-dexie'
+import stemmer from 'memex-stemmer'
 
 import CustomListBackground from './'
 import * as DATA from './storage.test.data'
@@ -8,14 +9,15 @@ const indexedDB = require('fake-indexeddb')
 const iDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange')
 
 const runSuite = () => () => {
-    const ids = {}
     const storageManager = new StorageManager({
-        backend: new FakeStorageBackend({
-            idGenerator: collection => {
-                ids[collection] = ids[collection] || 0
-                return `${collection}-${(++ids[collection]).toString()}`
+        backend: new DexieStorageBackend({
+            stemmer,
+            dbName: 'test',
+            idbImplementation: {
+                factory: indexedDB,
+                range: iDBKeyRange,
             },
-        }),
+        }) as any,
     })
     const fakeIndex = new CustomListBackground({ storageManager })
     async function insertTestData() {
