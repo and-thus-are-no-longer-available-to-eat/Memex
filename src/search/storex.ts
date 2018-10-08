@@ -17,7 +17,7 @@ export const backend = new DexieStorageBackend({
     },
 })
 
-const instance = new Storex({ backend: backend as any })
+const instance = new Storex({ backend })
 
 // Extend storex instance with Memex-specific methods
 instance.collection = (name: string) => ({
