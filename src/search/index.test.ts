@@ -28,7 +28,7 @@ describe('Search index integration', () => {
 
     async function resetTestData(dbName = 'test') {
         indexedDB.deleteDatabase(dbName)
-        index.init({ indexedDB, IDBKeyRange: iDBKeyRange, dbName })
+        index.init()
 
         await insertTestData()
     }

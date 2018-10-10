@@ -4,9 +4,8 @@ import stemmer from 'memex-stemmer'
 
 import schemaPatcher from './storage/dexie-schema'
 import { suggestObjects } from './search/suggest'
-import { StorageManager } from './types'
+import { StorageManager, Dexie } from './types'
 
-// Create main singleton to interact with DB in the ext
 export const backend = new DexieStorageBackend({
     stemmer,
     schemaPatcher,
@@ -17,12 +16,16 @@ export const backend = new DexieStorageBackend({
     },
 })
 
-const instance = new Storex({ backend })
+export const dexieInstance = backend.dexieInstance as Dexie
 
 // Extend storex instance with Memex-specific methods
+const instance = new Storex({ backend }) as StorageManager
+const oldMethod = instance.collection.bind(instance)
 instance.collection = (name: string) => ({
+    ...oldMethod(name),
     suggestObjects,
-    ...instance.collection(name),
 })
 
-export default instance as StorageManager
+instance.deleteDB = window.indexedDB.deleteDatabase
+
+export default instance
