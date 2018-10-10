@@ -1,5 +1,6 @@
-import db, { SearchParams, PageResultsMap, Storage } from '..'
+import db, { SearchParams, PageResultsMap } from '..'
 import QueryBuilder from '../query-builder'
+import { initErrHandler } from '../storage'
 import { groupLatestEventsByUrl, mapUrlsToLatestEvents } from './events'
 import { mapResultsToDisplay } from './map-results-to-display'
 import { findFilteredUrls } from './filters'
@@ -67,7 +68,7 @@ export async function search({
 
             return { docs: mappedDocs, totalCount: results.totalCount }
         })
-        .catch(Storage.initErrHandler({ docs: [], totalCount: 0 }))
+        .catch(initErrHandler({ docs: [], totalCount: 0 }))
 
     return {
         docs,
@@ -83,7 +84,7 @@ export async function getMatchingPageCount(pattern) {
     return db.pages
         .filter(page => re.test(page.url))
         .count()
-        .catch(Storage.initErrHandler(0))
+        .catch(initErrHandler(0))
 }
 
 /**

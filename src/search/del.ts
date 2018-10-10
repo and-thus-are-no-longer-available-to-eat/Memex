@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 
-import db, { Page, Storage } from '.'
+import db, { Page } from '.'
+import { initErrHandler } from './storage'
 import normalizeUrl from '../util/encode-url-for-id'
 
 type QueryApplier = (table: typeof db.pages) => Dexie.Collection<Page, string>
@@ -10,7 +11,7 @@ const deletePages = (applyQuery: QueryApplier) =>
         const pages = await applyQuery(db.pages).toArray()
 
         await Promise.all(pages.map(page => page.delete())).catch(
-            Storage.initErrHandler(),
+            initErrHandler(),
         )
     })
 

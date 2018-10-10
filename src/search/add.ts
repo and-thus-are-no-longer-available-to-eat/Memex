@@ -1,9 +1,10 @@
-import db, { VisitInteraction, PageAddRequest, Storage } from '.'
+import db, { VisitInteraction, PageAddRequest } from '.'
 import normalizeUrl from '../util/encode-url-for-id'
 import pipeline, { transformUrl } from './pipeline'
 import { Page, FavIcon } from './models'
 import { getPage } from './util'
 import { PipelineReq } from './types'
+import { initErrHandler } from './storage'
 
 /**
  * Adds/updates a page + associated visit (pages never exist without either an assoc.
@@ -78,7 +79,7 @@ export async function updateTimestampMeta(
                 .equals([time, normalized])
                 .modify(data),
         )
-        .catch(Storage.initErrHandler())
+        .catch(initErrHandler())
 }
 
 export async function addVisit(url: string, time = Date.now()) {
@@ -89,13 +90,11 @@ export async function addVisit(url: string, time = Date.now()) {
     }
 
     matchingPage.addVisit(time)
-    return matchingPage.save().catch(Storage.initErrHandler())
+    return matchingPage.save().catch(initErrHandler())
 }
 
 export async function addFavIcon(url: string, favIconURI: string) {
     const { hostname } = transformUrl(url)
 
-    return new FavIcon({ hostname, favIconURI })
-        .save()
-        .catch(Storage.initErrHandler())
+    return new FavIcon({ hostname, favIconURI }).save().catch(initErrHandler())
 }

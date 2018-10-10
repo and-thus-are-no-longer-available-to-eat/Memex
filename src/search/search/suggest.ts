@@ -1,10 +1,11 @@
 import Dexie from 'dexie'
 
-import db, { Storage } from '..'
-import { backend } from '../storex'
+import db from '..'
+import { dexieInstance } from '../storex'
 import { SuggestOptions, SuggestResult } from '../types'
 import { UnimplementedError, InvalidFindOptsError } from '../storage/errors'
 import { Tag, Page } from '../models'
+import { initErrHandler } from '../storage'
 
 type SuggestType = 'domain' | 'tag'
 
@@ -14,7 +15,7 @@ export async function suggest(query = '', type: SuggestType, limit = 10) {
             .startsWith(query)
             .limit(limit)
             .uniqueKeys()
-            .catch(Storage.initErrHandler([] as T[]))
+            .catch(initErrHandler([] as T[]))
 
     switch (type) {
         case 'domain': {
@@ -46,9 +47,7 @@ export async function suggestObjects<S, P = any>(
         )
     }
 
-    const whereClause = backend.dexieInstance
-        .table<S, P>(collection)
-        .where(indexName)
+    const whereClause = dexieInstance.table<S, P>(collection).where(indexName)
 
     let coll =
         options.ignoreCase &&
@@ -93,7 +92,7 @@ export async function extendedSuggest(
             .noneOf(notInclude)
             .limit(limit)
             .uniqueKeys()
-            .catch(Storage.initErrHandler([] as T[]))
+            .catch(initErrHandler([] as T[]))
 
     switch (type) {
         case 'domain': {

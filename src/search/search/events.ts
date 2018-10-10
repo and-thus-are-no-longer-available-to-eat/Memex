@@ -1,4 +1,4 @@
-import db, { Storage, SearchParams, PageResultsMap, FilteredURLs } from '..'
+import db, { SearchParams, PageResultsMap, FilteredURLs } from '..'
 
 /**
  * Given some URLs, grab the latest assoc. event timestamp for each one within the time filter bounds.
@@ -98,8 +98,8 @@ async function lookbackFromEndDate(
     await db.visits
         .where('[time+url]')
         .between(
-            [startDate, Storage.MIN_STR],
-            [endDate, Storage.MAX_STR],
+            [startDate, ''],
+            [endDate, String.fromCharCode(65535)],
             true,
             true,
         )
