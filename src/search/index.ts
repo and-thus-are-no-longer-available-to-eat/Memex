@@ -2,11 +2,7 @@ import storageManager, { backend } from './storex'
 import { Dexie } from './types'
 import { Page, Visit, Bookmark, Tag, FavIcon } from './models'
 
-let index: Dexie = null
-
-export const init = () => {
-    index = backend['dexie'] as Dexie
-
+export const getDb = (async () => {
     // TODO: move these declarations to own feature storage classes
     storageManager.registry.registerCollections({
         pages: {
@@ -75,22 +71,23 @@ export const init = () => {
         },
     }) // Set up model classes
 
+    await storageManager.finishInitialization()
+
+    const index = backend['dexie'] as Dexie
     index.pages.mapToClass(Page)
     index.visits.mapToClass(Visit)
     index.bookmarks.mapToClass(Bookmark)
     index.tags.mapToClass(Tag)
     index.favIcons.mapToClass(FavIcon)
 
-    storageManager.finishInitialization()
-}
-
-init()
+    return index
+})()
 
 export * from './types'
 export * from './models'
 
 export { storageManager }
-export default index
+export default getDb
 
 //
 // Adding stuff

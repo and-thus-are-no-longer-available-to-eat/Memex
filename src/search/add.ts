@@ -1,4 +1,4 @@
-import db, { VisitInteraction, PageAddRequest } from '.'
+import getDb, { VisitInteraction, PageAddRequest } from '.'
 import normalizeUrl from '../util/encode-url-for-id'
 import pipeline, { transformUrl } from './pipeline'
 import { Page, FavIcon } from './models'
@@ -16,6 +16,8 @@ export async function addPage({
     pageDoc,
     rejectNoContent,
 }: Partial<PageAddRequest>) {
+    const db = await getDb
+
     const { favIconURI, ...pageData } = await pipeline({
         pageDoc,
         rejectNoContent,
@@ -49,6 +51,7 @@ export async function addPage({
 }
 
 export async function addPageTerms(pipelineReq: PipelineReq) {
+    const db = await getDb
     const pageData = await pipeline(pipelineReq)
 
     try {
@@ -70,6 +73,7 @@ export async function updateTimestampMeta(
     time: number,
     data: Partial<VisitInteraction>,
 ) {
+    const db = await getDb
     const normalized = normalizeUrl(url)
 
     await db

@@ -1,4 +1,4 @@
-import db, { SearchParams, PageResultsMap } from '..'
+import getDb, { SearchParams, PageResultsMap } from '..'
 import QueryBuilder from '../query-builder'
 import { initErrHandler } from '../storage'
 import { groupLatestEventsByUrl, mapUrlsToLatestEvents } from './events'
@@ -19,6 +19,7 @@ export async function search({
     lists = [],
     ...restParams
 }) {
+    const db = await getDb
     // Extract query terms via QueryBuilder (may change)
     const qb = new QueryBuilder()
         .searchTerm(query)
@@ -80,6 +81,7 @@ export async function search({
 
 // WARNING: Inefficient; goes through entire table
 export async function getMatchingPageCount(pattern) {
+    const db = await getDb
     const re = new RegExp(pattern, 'i')
     return db.pages
         .filter(page => re.test(page.url))

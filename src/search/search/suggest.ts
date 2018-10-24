@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 
-import db from '..'
+import getDb from '..'
 import { dexieInstance } from '../storex'
 import { SuggestOptions, SuggestResult } from '../types'
 import { UnimplementedError, InvalidFindOptsError } from '../storage/errors'
@@ -10,6 +10,7 @@ import { initErrHandler } from '../storage'
 type SuggestType = 'domain' | 'tag'
 
 export async function suggest(query = '', type: SuggestType, limit = 10) {
+    const db = await getDb
     const applyQuery = <T, Key>(where: Dexie.WhereClause<T, Key>) =>
         where
             .startsWith(query)
@@ -87,6 +88,7 @@ export async function extendedSuggest(
     type: SuggestType,
     limit = 20,
 ) {
+    const db = await getDb
     const applyQuery = <T, Key>(where: Dexie.WhereClause<T, Key>) =>
         where
             .noneOf(notInclude)

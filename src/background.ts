@@ -1,7 +1,7 @@
 import 'babel-polyfill'
 import 'core-js/es7/symbol'
 
-import db, { storageManager } from './search'
+import getDb, { storageManager } from './search'
 import internalAnalytics from './analytics/internal'
 import initSentry from './util/raven'
 
@@ -40,7 +40,7 @@ bgScript.setupRemoteFunctions()
 bgScript.setupWebExtAPIHandlers()
 
 // Attach interesting features onto global window scope for interested users
-window['db'] = db
+window['getDb'] = getDb
 window['storageMan'] = storageManager
 window['bgScript'] = bgScript
 window['eventLog'] = eventLog

@@ -1,4 +1,4 @@
-import db, * as index from '.'
+import getDb, * as index from '.'
 import * as DATA from './index.test.data'
 
 const indexedDB = require('fake-indexeddb')
@@ -28,7 +28,6 @@ describe('Search index integration', () => {
 
     async function resetTestData(dbName = 'test') {
         indexedDB.deleteDatabase(dbName)
-        index.init()
 
         await insertTestData()
     }
@@ -402,6 +401,7 @@ describe('Search index integration', () => {
         afterEach(() => (jasmine.DEFAULT_TIMEOUT_INTERVAL = origTimeout))
 
         test('add fav-icon', async () => {
+            const db = await getDb
             const hostname1 = 'lorem.com'
             const hostname2 = 'sub.lorem.com'
 
