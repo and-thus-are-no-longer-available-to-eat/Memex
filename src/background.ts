@@ -30,7 +30,6 @@ directLinking.setupRequestInterceptor()
 
 const eventLog = new EventLogBackground({ storageManager })
 eventLog.setupRemoteFunctions()
-internalAnalytics.registerOperations(eventLog)
 
 const customList = new CustomListBackground({ storageManager })
 customList.setupRemoteFunctions()
@@ -40,6 +39,7 @@ bgScript.setupRemoteFunctions()
 bgScript.setupWebExtAPIHandlers()
 
 initStorageManager()
+getDb.then(() => internalAnalytics.registerOperations(eventLog))
 
 // Attach interesting features onto global window scope for interested users
 window['getDb'] = getDb
