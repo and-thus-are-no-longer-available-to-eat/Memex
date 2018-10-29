@@ -1,7 +1,7 @@
 import 'babel-polyfill'
 import 'core-js/es7/symbol'
 
-import getDb, { storageManager } from './search'
+import getDb, { storageManager, initStorageManager } from './search'
 import internalAnalytics from './analytics/internal'
 import initSentry from './util/raven'
 
@@ -38,6 +38,8 @@ customList.setupRemoteFunctions()
 const bgScript = new BackgroundScript({ notifsBackground: notifications })
 bgScript.setupRemoteFunctions()
 bgScript.setupWebExtAPIHandlers()
+
+initStorageManager()
 
 // Attach interesting features onto global window scope for interested users
 window['getDb'] = getDb

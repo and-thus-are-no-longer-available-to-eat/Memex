@@ -2,7 +2,20 @@ import storageManager, { backend } from './storex'
 import { Dexie } from './types'
 import { Page, Visit, Bookmark, Tag, FavIcon } from './models'
 
-export const getDb = (async () => {
+// This code allows the `getDb` Promise to delay resolution until
+//   the `initStorageManager` function is invoked. This is currently
+//   needed to make sure the init code that runs inside `getDb` init
+//   logic waits until all the `FeatureStorage` backends have a chance
+//   to register their collections with storex.
+//   TODO: more sane solution
+let resolveFeaturesReady = () => undefined
+const featuresReady = new Promise(resolve => (resolveFeaturesReady = resolve))
+
+export const initStorageManager = () => {
+    resolveFeaturesReady()
+}
+
+const getDb = (async () => {
     // TODO: move these declarations to own feature storage classes
     storageManager.registry.registerCollections({
         pages: {
@@ -69,10 +82,12 @@ export const getDb = (async () => {
             },
             indices: [{ field: 'hostname', pk: true }],
         },
-    }) // Set up model classes
+    })
 
+    await featuresReady
     await storageManager.finishInitialization()
 
+    // Set up model classes
     const index = backend['dexie'] as Dexie
     index.pages.mapToClass(Page)
     index.visits.mapToClass(Visit)
