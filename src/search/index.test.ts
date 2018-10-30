@@ -4,6 +4,7 @@ import * as DATA from './index.test.data'
 const indexedDB = require('fake-indexeddb')
 const iDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange')
 
+jest.mock('./storex')
 jest.mock('./models/abstract-model')
 jest.mock('lodash/fp/intersection')
 jest.mock('lodash/fp/flatten')
