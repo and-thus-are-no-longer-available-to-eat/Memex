@@ -17,7 +17,7 @@ const backend = new DexieStorageBackend({
         factory: indexedDB,
         range: iDBKeyRange,
     },
-})
+}) as any
 
 // Extend storex instance with Memex-specific methods
 const instance = new Storex({ backend }) as StorageManager
